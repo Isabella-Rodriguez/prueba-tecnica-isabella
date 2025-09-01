@@ -119,14 +119,29 @@ fastapi dev
 uvicorn app.main:app --reload
 ```
 
-## 📊 Funcionalidades de la API
+## 📊 Funcionalidades de las APIs
 
 ### Endpoints Principales
 
 #### Parte A: Datos Externos
+**API externa elegida:** [JSONPlaceholder](https://jsonplaceholder.typicode.com/)  
+**Recurso consumido:** `GET https://jsonplaceholder.typicode.com/posts`  
+**Qué datos se consumen:** lista de *posts* con los campos `userId`, `id`, `title`, `body`.  
+**Por qué esta API:** es pública, no requiere clave de acceso y es muy estable, lo que permite reproducir fácilmente las pruebas locales.
 
-- **GET** `/external-data` - Obtiene datos desde API externa (JSONPlaceholder)
+- **GET** `/external-data` - Obtiene datos desde API externa
 - **POST** `/external-data/filter?limit={n}` - Filtra datos externos por límite
+  
+**Resultado esperado:**
+
+```json
+{
+  "userId": 5,
+  "id": 45,
+  "title": "ut numquam possimus omnis eius suscipit laudantium iure",
+  "body": "est natus reiciendis nihil possimus aut provident..."
+}
+```
 
 #### Parte B: Gestión de Leads
 
@@ -134,7 +149,37 @@ uvicorn app.main:app --reload
   - `location` - Filtrar por ciudad
   - `min` - Presupuesto mínimo
   - `max` - Presupuesto máximo
+ 
+    **Resultado esperado:**
+
+```json
+[
+  {
+    "id": 5,
+    "name": "Sofía Ríos",
+    "location": "Bogota",
+    "budget": 450000
+  },
+  {
+    "id": 3,
+    "name": "María Ruiz",
+    "location": "Bogota",
+    "budget": 320000
+  }
+]
+```
+
 - **POST** `/leads` - Crea nuevo lead (JSON: `id`, `name`, `location`, `budget`)
+ ```json
+  {
+  "id": 1,
+  "name": "string",
+  "location": "string",
+  "budget": 0
+}
+
+```
+
 
 ### Modelo de Datos
 
