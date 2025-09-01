@@ -342,4 +342,4 @@ Este proyecto es parte de una prueba técnica y está destinado únicamente para
 
 ---
 
-**Desarrollado con ❤️ usando FastAPI, PostgreSQL y n8n**
+**Desarrollado por: Isabella Rodríguez Laytón**
