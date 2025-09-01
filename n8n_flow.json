@@ -1,0 +1,189 @@
+{
+  "name": "n8n_flow",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO leads (id, name, location, budget) VALUES\n(13,'Isabella Rodriguez','Cali',200000000),\n(14,'Nestor Rodriguez','Medellín',500000000)\nON CONFLICT (id) DO NOTHING;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [-192, -112],
+      "id": "f8abe793-e6ec-4c94-94b3-b33ce9761d75",
+      "name": "Insertar leads (PostgreSQL)",
+      "credentials": {
+        "postgres": {
+          "id": "bU5uX5SMBrWUvkcB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, name, location, budget FROM leads;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [-16, -112],
+      "id": "aee5cfa7-5d55-49ad-981d-d92870726fff",
+      "name": "Seleccionar leads (PostgreSQL)",
+      "credentials": {
+        "postgres": {
+          "id": "bU5uX5SMBrWUvkcB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a6f8b80c-466d-4ac5-bb80-1f1a554f71f3",
+              "leftValue": "={{ $json.location }}",
+              "rightValue": "=Bogota",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "da9dc850-0007-431a-bb43-d55ec69357c2",
+              "leftValue": "={{ $json.budget }}",
+              "rightValue": 320000,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            },
+            {
+              "id": "ed8dbcef-5e99-4146-a376-64b1f9e258b5",
+              "leftValue": "={{ $json.budget }}",
+              "rightValue": 500000000,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [160, -112],
+      "id": "102e16da-8e7f-4640-a82d-99ba68415119",
+      "name": "Filtrar por ciudad y presupuesto"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all(); \nconst total = rows.reduce((s, i) => s + Number(i.json.budget || 0), 0);\n\nreturn [{\n  json: {\n    total_budget: total,\n    leads: rows.map(i => i.json) \n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [368, -208],
+      "id": "921f42dc-0967-4063-9d30-ea51551cdfb1",
+      "name": "Sumar presupuesto total"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst { total_budget, leads } = $input.first().json;\nleads.sort((a, b) => Number(b.budget ?? 0) - Number(a.budget ?? 0));\n\nreturn [{ json: { leads_filtrados: leads, total_budget } }];\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [576, -208],
+      "id": "4b03aa4d-2d42-4a86-b9f6-2d92790bf49a",
+      "name": "Ordenar por presupuesto"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-384, -112],
+      "id": "8ba398b3-d7a8-47bb-acd1-9dde45994295",
+      "name": "Disparador manual"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Insertar leads (PostgreSQL)": {
+      "main": [
+        [
+          {
+            "node": "Seleccionar leads (PostgreSQL)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Seleccionar leads (PostgreSQL)": {
+      "main": [
+        [
+          {
+            "node": "Filtrar por ciudad y presupuesto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar por ciudad y presupuesto": {
+      "main": [
+        [
+          {
+            "node": "Sumar presupuesto total",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sumar presupuesto total": {
+      "main": [
+        [
+          {
+            "node": "Ordenar por presupuesto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Disparador manual": {
+      "main": [
+        [
+          {
+            "node": "Insertar leads (PostgreSQL)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": false,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "56f27743-22a5-467a-82de-152e837b6a4a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "af9eaba16748b1d62652337c328c3a5a32ee9eba8ba726495e8b26cac30e279b"
+  },
+  "id": "807Y4wcaga5Wdnx9",
+  "tags": []
+}
