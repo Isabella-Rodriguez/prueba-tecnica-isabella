@@ -336,10 +336,6 @@ psycopg-binary==3.2.9     # Driver PostgreSQL
 - ✅ Generación de comunicaciones de diagnóstico
 - ✅ Generación de comunicaciones de resolución
 
-## 📄 Licencia
-
-Este proyecto es parte de una prueba técnica y está destinado únicamente para fines de evaluación.
-
 ---
 
 **Desarrollado por: Isabella Rodríguez Laytón**
